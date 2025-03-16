@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\harshit kandpal\Desktop\AI-Powered-Personalized-Learning\backend\venv
+set VIRTUAL_ENV=E:\Hack to Crack 2025 Vishawniketan\Hacktocrack2.0\AI-Powered-Personalized-Learning\backend\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
