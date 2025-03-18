@@ -18,6 +18,8 @@ from routes.track_learning_speed import track_learning_speed_bp
 from routes.chatbot import chatbot_bp
 from routes.student_progress import student_progress_bp
 from routes.admin import admin_bp
+from routes.create_course import create_course_bp
+from routes.create_teacher import create_teacher_bp
 
 # Create Flask app
 app = Flask(__name__)
@@ -33,7 +35,8 @@ app.register_blueprint(track_learning_speed_bp)
 app.register_blueprint(chatbot_bp)
 app.register_blueprint(student_progress_bp)
 app.register_blueprint(admin_bp)
-
+app.register_blueprint(create_course_bp)
+app.register_blueprint(create_teacher_bp)
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to AI-Powered Personalized Learning API"})
