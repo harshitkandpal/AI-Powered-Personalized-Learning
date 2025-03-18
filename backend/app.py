@@ -9,7 +9,7 @@ cred_path = os.path.join(os.path.dirname(__file__), "firebase.json")
 if not firebase_admin._apps:
     cred = credentials.Certificate(cred_path)
     firebase_app = firebase_admin.initialize_app(cred)
-
+print("Initialized Firebase Apps:", firebase_admin._apps)
 # Import routes AFTER Firebase initialization
 from routes.course_selection import course_selection_bp
 from routes.recommended_courses import recommended_courses_bp
