@@ -78,8 +78,21 @@ const CourseDetail = () => {
 
   return (
     <div className="course-detail-container p-6">
-      <h1 className="text-3xl font-bold">{course.title}</h1>
-      <p className="text-gray-600 mt-2">{course.description}</p>
+      {/* Course Header */}
+      <div className="course-header mb-6">
+        <h1 className="text-4xl font-bold mb-2">{course.title}</h1>
+        <img
+          src={course.image}
+          alt={course.title}
+          className="w-full h-64 object-cover rounded-lg mb-4"
+        />
+        <p className="text-gray-700 text-lg mb-4">{course.description}</p>
+        <div className="course-meta text-gray-600">
+          <p>Category: {course.category}</p>
+          <p>Difficulty Level: {course.difficulty_level}</p>
+          <p>Estimated Duration: {course.duration} hours</p>
+        </div>
+      </div>
       <p className="text-lg font-bold text-green-500 mt-2">Price: {course.price}</p>
       <p className="text-gray-500">Category: {course.category}</p>
       <p className="text-gray-500">Difficulty: {course.difficulty_level}</p>
