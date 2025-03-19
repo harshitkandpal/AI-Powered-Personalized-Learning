@@ -72,7 +72,7 @@ const CourseContent = () => {
   }
 
   return (
-    <div className="course-content-page p-6">
+    <div className="course-content-page p-6 px-36">
       {/* Course Header */}
       <div className="course-header mb-6">
         <h1 className="text-4xl font-bold mb-2">{course.title}</h1>
@@ -91,7 +91,7 @@ const CourseContent = () => {
                 </h3>
                 <iframe
                   width="100%"
-                  height="450"
+                  height="650"
                   src={video.includes("youtube.com/watch?v=") ? video.replace("watch?v=", "embed/") : video}
                   title={video.title}
                   frameBorder="0"
