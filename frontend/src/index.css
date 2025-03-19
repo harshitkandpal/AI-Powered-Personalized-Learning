@@ -1,2 +1,133 @@
 @import "tailwindcss";
 
+/* src/index.css */
+@tailwind utilities;
+
+/* Smooth transition for background and text colors */
+body {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light mode - default */
+body {
+  background-color: #ffffff; /* Light background */
+  color: #333333; /* Dark text */
+}
+
+/* Dark mode */
+.dark body {
+  background-color: #1a1a1a; /* Dark background */
+  color: #e0e0e0; /* Light text */
+}
+
+/* Navbar specific styles */
+.navbar {
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+/* Light mode navbar */
+.navbar {
+  background-color: #ffffff; /* Light background */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow */
+}
+
+/* Dark mode navbar */
+.dark .navbar {
+  background-color: #333333; /* Darker background */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+}
+
+/* Search bar styles */
+.search-bar {
+  transition: background-color 0.3s;
+  background-color: #f1f1f1; /* Light mode */
+}
+
+/* Dark mode search bar */
+.dark .search-bar {
+  background-color: #444444; /* Dark mode search bar */
+}
+
+/* Links (tabs) */
+.nav-links a {
+  transition: color 0.3s;
+  color: #333333; /* Light mode links */
+}
+
+.nav-links a:hover {
+  color: #007bff; /* Hover effect for light mode */
+}
+
+/* Dark mode link colors */
+.dark .nav-links a {
+  color: #e0e0e0; /* Lighter text in dark mode */
+}
+
+.dark .nav-links a:hover {
+  color: #90caf9; /* Hover effect in dark mode */
+}
+
+/* Profile icon styles */
+.profile-section a {
+  transition: color 0.3s;
+  color: #666666; /* Light mode icon color */
+}
+
+.dark .profile-section a {
+  color: #cccccc; /* Dark mode icon color */
+}
+
+/* Button for theme toggle */
+button[aria-label='Toggle theme'] {
+  transition: background-color 0.3s;
+  background-color: #e0e0e0; /* Light mode button */
+}
+
+button[aria-label='Toggle theme']:hover {
+  background-color: #cccccc;
+}
+
+/* Dark mode button */
+.dark button[aria-label='Toggle theme'] {
+  background-color: #444444; /* Dark mode button */
+}
+
+.dark button[aria-label='Toggle theme']:hover {
+  background-color: #555555;
+}
+
+/* Ensure proper contrast for dark mode button icon */
+button[aria-label='Toggle theme'] svg {
+  color: #333333; /* Default color for light mode */
+}
+
+.dark button[aria-label='Toggle theme'] svg {
+  color: #f0f0f0; /* Light color for dark mode */
+}
+
+/* Dark Mode Styles */
+.dark .course-card-link {
+    background-color: #2d2d2d; /* Dark background */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Darker shadow */
+    color: #e0e0e0; /* Light text */
+  }
+  
+  .dark .course-card-link:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); /* Stronger hover shadow */
+  }
+  
+  .dark .course-title {
+    color: #ffffff; /* White title */
+  }
+  
+  .dark .course-description {
+    color: #cccccc; /* Lighter description */
+  }
+  
+  .dark .course-duration {
+    color: #bbbbbb; /* Lighter duration */
+  }
+  
+  .dark .course-price {
+    color: #85e085; /* Lighter green for price */
+  }
