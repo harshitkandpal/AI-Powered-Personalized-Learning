@@ -28,20 +28,25 @@ const CourseDetail = () => {
       if (currentUser) {
         const studentRef = doc(db, "students", currentUser.email); // Fetch student by email
         const studentSnapshot = await getDoc(studentRef);
-
+    
         if (studentSnapshot.exists()) {
           const studentData = studentSnapshot.data();
-          const enrolled = studentData.enrolled_courses.some((course) => course.course_id === course_id);
+    
+          // Check if the student is enrolled in the course
+          const enrolled = studentData.enrolled_courses.some(
+            (course) => course.course_id === course_id
+          );
           setIsEnrolled(enrolled);
-
+    
           if (enrolled) {
-            // Fetch progress for the specific course
-            const progressData = studentData.progress.find((p) => p.course_id === course_id);
+            // Fetch progress for the specific course using course_id as a key
+            const progressData = studentData.progress?.[course_id] || { completion_percentage: 0 };
             setStudentProgress(progressData);
           }
         }
       }
     };
+    
 
     fetchCourse();
     checkEnrollment();
