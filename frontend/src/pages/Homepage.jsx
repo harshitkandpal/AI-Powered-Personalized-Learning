@@ -1,45 +1,48 @@
-// Homepage.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore"; // To fetch courses from Firestore
+import { db } from "../firebase"; // Your Firebase config file
 import CourseSlider from "../components/CourseSlider";
+import Navbar from "../components/Navbar";
 
 const Homepage = () => {
-  const categories = [
-    {
-        name: "Featured Courses",
-        courses: [
-          { id: 3, title: "Python for Data Science", image: "python-course.jpg", rating: 4.6, price: "$29.99" },
-          { id: 4, title: "Machine Learning A-Z", image: "ml-course.jpg", rating: 4.8, price: "$34.99" },
-          { id: 2, title: "Node.js Mastery", image: "node-course.jpg", rating: 4.7, price: "$24.99" },
-          { id: 6, title: "Machine Learning A-Z", image: "ml-course.jpg", rating: 4.8, price: "$34.99" },
-          { id: 1, title: "React for Beginners", image: "react-course.jpg", rating: 4.5, price: "$19.99" },
-          { id: 5, title: "Python for Data Science", image: "python-course.jpg", rating: 4.6, price: "$29.99" },
-        ],
-      },
-    {
-      name: "Web Development",
-      courses: [
-        { id: 1, title: "React for Beginners", image: "react-course.jpg", rating: 4.5, price: "$19.99" },
-        { id: 2, title: "Node.js Mastery", image: "node-course.jpg", rating: 4.7, price: "$24.99" },
-      ],
-    },
-    {
-      name: "Data Science",
-      courses: [
-        { id: 3, title: "Python for Data Science", image: "python-course.jpg", rating: 4.6, price: "$29.99" },
-        { id: 4, title: "Machine Learning A-Z", image: "ml-course.jpg", rating: 4.8, price: "$34.99" },
-      ],
-    },
-    {
-        name: "AI/ML",
-        courses: [
-          { id: 5, title: "Python for Data Science", image: "python-course.jpg", rating: 4.6, price: "$29.99" },
-          { id: 6, title: "Machine Learning A-Z", image: "ml-course.jpg", rating: 4.8, price: "$34.99" },
-        ],
-      },
-  ];
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const coursesCollection = collection(db, "courses"); // Fetching from 'courses' collection in Firestore
+      const courseSnapshot = await getDocs(coursesCollection);
+      const courseList = courseSnapshot.docs.map((doc) => doc.data()); // Getting data for each course
+
+      // Group courses by category
+      const groupedCourses = courseList.reduce((acc, course) => {
+        const { category } = course;
+
+        // If the category doesn't exist in accumulator, create it
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+
+        // Push the course into the corresponding category array
+        acc[category].push(course);
+
+        return acc;
+      }, {});
+
+      // Convert the grouped courses object into an array for easier mapping
+      const categoryArray = Object.keys(groupedCourses).map((category) => ({
+        name: category,
+        courses: groupedCourses[category],
+      }));
+
+      setCategories(categoryArray);
+    };
+
+    fetchCourses();
+  }, []);
 
   return (
     <div className="homepage-container">
+      <Navbar />
       {categories.map((category, idx) => (
         <div key={idx} className="category-section">
           <h2 className="category-title text-xl font-bold mb-4">{category.name}</h2>

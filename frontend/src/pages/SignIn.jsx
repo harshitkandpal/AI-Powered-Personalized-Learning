@@ -26,7 +26,7 @@ const SignIn = () => {
         created_at: serverTimestamp(),
       });
 
-      navigate("/dashboard"); // Redirect to dashboard after login
+      navigate("/"); // Redirect to dashboard after login
     } catch (error) {
       console.error("Error signing in with Google", error);
     }
@@ -44,7 +44,7 @@ const SignIn = () => {
         created_at: serverTimestamp(),
       });
 
-      navigate("/dashboard"); // Redirect to dashboard after login
+      navigate("/"); // Redirect to dashboard after login
     } catch (error) {
       console.error("Error signing in with email", error);
     }

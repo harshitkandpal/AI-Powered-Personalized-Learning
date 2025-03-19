@@ -14,7 +14,7 @@ def create_course():
         course_data = request.json
         
         # Validate required fields
-        required_fields = ['teacher_email', 'title', 'description', 'category', 'difficulty_level', 'duration']
+        required_fields = ['teacher_email', 'title', 'description', 'category', 'difficulty_level', 'duration', 'price', 'image']
         for field in required_fields:
             if field not in course_data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -43,6 +43,8 @@ def create_course():
             'created_by': teacher_email,
             'created_at': firestore.SERVER_TIMESTAMP,
             'duration': course_data['duration'],  # In hours
+            'price': course_data['price'],
+            'image': course_data['image'],
             'content': {
                 'videos': [],
                 'pdfs': [],

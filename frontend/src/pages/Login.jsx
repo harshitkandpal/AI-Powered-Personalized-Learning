@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error("Error logging in with email", error);
     }
@@ -21,7 +21,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, provider);
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error("Error logging in with Google", error);
     }
