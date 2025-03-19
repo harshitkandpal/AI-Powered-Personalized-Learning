@@ -3,9 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiUser } from 'react-icons/fi';
 import { useTheme } from './ThemeContext';
+import { FaSun, FaMoon } from 'react-icons/fa'; // Import Sun and Moon icons
 
 const Navbar = () => {
-  const { toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <nav className="navbar bg-white shadow-md p-4 flex justify-between items-center">
@@ -48,19 +49,11 @@ const Navbar = () => {
         className="ml-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700"
         aria-label="Toggle theme"
       >
-        {/* Sun and Moon icons */}
-        
-        <svg
-          className="w-5 h-5 text-yellow-500 dark:text-gray-300"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"
-            clipRule="evenodd"
-          />
-        </svg>
+        {theme === 'dark' ? (
+          <FaSun className="text-yellow-500 w-5 h-5" /> // Sun icon for dark theme
+        ) : (
+          <FaMoon className="text-gray-500 w-5 h-5" /> // Moon icon for light theme
+        )}
       </button>
 
       {/* Profile section */}
@@ -69,8 +62,6 @@ const Navbar = () => {
           <FiUser size={24} />
         </Link>
       </div>
-
-      
     </nav>
   );
 };
