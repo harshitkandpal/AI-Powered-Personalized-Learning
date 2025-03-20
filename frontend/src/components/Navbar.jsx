@@ -14,7 +14,7 @@ const Navbar = () => {
       <div className="logo">
         <Link to="/">
           <img
-            src="/path/to/your/logo.png"
+            src="https://img.freepik.com/free-vector/open-magic-book-with-fantasy-blue-light-vector_107791-31843.jpg"
             alt="Company Logo"
             className="w-32"
           />
