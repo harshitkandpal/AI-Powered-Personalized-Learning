@@ -4,6 +4,8 @@ import { db } from "../firebase"; // Assuming you have firebase configured
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore"; // Firebase methods
 import { useAuth } from "../AuthContext"; // Assuming you have an AuthContext for user
 
+import { Timestamp } from "firebase/firestore"; // Add this to convert Firebase Timestamp
+
 const CourseDetail = () => {
   const { course_id } = useParams(); // Extract course_id from URL
   const { currentUser } = useAuth(); // Get the current authenticated user
@@ -14,19 +16,19 @@ const CourseDetail = () => {
 
   useEffect(() => {
     const fetchCourse = async () => {
-      const courseRef = doc(db, "courses", course_id); // Fetch course by course_id
+      const courseRef = doc(db, "courses", course_id);
       const courseSnapshot = await getDoc(courseRef);
-      
+    
       if (courseSnapshot.exists()) {
         setCourse(courseSnapshot.data());
       } else {
         console.log("Course not found!");
       }
     };
-
+  
     const checkEnrollment = async () => {
       if (currentUser) {
-        const studentRef = doc(db, "students", currentUser.email); // Fetch student by email
+        const studentRef = doc(db, "students", currentUser.email);
         const studentSnapshot = await getDoc(studentRef);
     
         if (studentSnapshot.exists()) {
@@ -34,48 +36,71 @@ const CourseDetail = () => {
     
           // Check if the student is enrolled in the course
           const enrolled = studentData.enrolled_courses.some(
-            (course) => course.course_id === course_id
+            (enrolledCourse) => enrolledCourse.course_id === course_id
           );
           setIsEnrolled(enrolled);
     
           if (enrolled) {
-            // Fetch progress for the specific course using course_id as a key
-            const progressData = studentData.progress?.[course_id] || { completion_percentage: 0 };
-            setStudentProgress(progressData);
+            // Access the progress array
+            const progressArray = studentData.progress || [];
+    
+            // Find the specific course progress in the array using the course_id
+            const courseProgress = progressArray.find(
+              (progressEntry) => progressEntry.course_id === course_id
+            );
+    
+            if (courseProgress) {
+              // Format progress for display
+              const formattedProgress = {
+                ...courseProgress,
+                last_accessed: courseProgress.last_accessed instanceof Timestamp
+                  ? courseProgress.last_accessed.toDate().toLocaleString()
+                  : courseProgress.last_accessed,
+              };
+    
+              console.log("Formatted progress:", formattedProgress); // Debugging
+              setStudentProgress(formattedProgress);
+            } else {
+              console.log("No progress found for this course");
+              setStudentProgress({ completion_percentage: 0 });
+            }
           }
         }
       }
     };
     
-
+    
+    
+  
     fetchCourse();
     checkEnrollment();
   }, [course_id, currentUser]);
-
+  
+  
   const handleEnrollNow = async () => {
     if (!currentUser) {
       navigate("/login"); // Redirect to login if not authenticated
       return;
     }
-
+  
     const studentRef = doc(db, "students", currentUser.email);
-
-    // Update the student's enrolled_courses and progress
+  
+    // Update the student's enrolled_courses and set the progress for this course
     await updateDoc(studentRef, {
       enrolled_courses: arrayUnion({ course_id }),
-      progress: arrayUnion({
-        course_id,
+      [`progress.${course_id}`]: {
         completion_percentage: 0,
         last_accessed: new Date(),
-      }),
+      },
     });
-
+  
     setIsEnrolled(true);
     setStudentProgress({
       completion_percentage: 0,
-      last_accessed: new Date(),
+      last_accessed: new Date().toLocaleString(),
     });
   };
+  
 
   if (!course) {
     return <p>Loading...</p>; // Display a loading state while fetching data
@@ -118,7 +143,6 @@ const CourseDetail = () => {
           Enroll Now
         </button>
       )}
-
     </div>
   );
 };
