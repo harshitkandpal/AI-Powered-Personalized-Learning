@@ -45,7 +45,7 @@ const Homepage = () => {
       <Navbar />
       {categories.map((category, idx) => (
         <div key={idx} className="category-section">
-          <h2 className="category-title text-xl font-bold mb-4">{category.name}</h2>
+          <h2 className="category-title text-xl font-bold mb-4 m-6 mx-10">{category.name}</h2>
           <CourseSlider courses={category.courses} />
         </div>
       ))}
