@@ -16,7 +16,7 @@ const Navbar = () => {
           <img
             src="https://img.freepik.com/free-vector/open-magic-book-with-fantasy-blue-light-vector_107791-31843.jpg"
             alt="Company Logo"
-            className="w-32"
+            className="w-22 rounded-full object-cover h-20"
           />
         </Link>
       </div>
