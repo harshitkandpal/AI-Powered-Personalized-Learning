@@ -30,8 +30,6 @@ const Profile = () => {  // Correct prop destructuring
 
             // Get array of course IDs, filtering out undefined or invalid IDs
             const enrolledCourseIds = studentData.enrolled_courses
-              .filter(course => course && course.course_id)
-              .map(course => course.course_id);
             console.log(enrolledCourseIds)
 
             // Now, fetch details of each course using the enrolled course IDs
@@ -44,6 +42,7 @@ const Profile = () => {  // Correct prop destructuring
             const courses = await Promise.all(coursePromises);
             // Filter out any null values (in case a course no longer exists)
             setEnrolledCourses(courses.filter(course => course !== null));
+            console.log(enrolledCourses)
           }
         } catch (error) {
           console.error("Error fetching enrolled courses: ", error);

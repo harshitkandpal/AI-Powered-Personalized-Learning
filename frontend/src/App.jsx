@@ -11,15 +11,16 @@ import CourseContent from './pages/CourseContent.jsx';
 // import CourseDetails from './pages/CourseDetails.jsx'; // Page for individual course
 import ProtectedRoute from './ProtectedRoute.jsx'; // Component for private route handling
 import SummativeTest from './pages/SummativeTest.jsx';
+import LoginSignUp from './pages/LoginSignUp.jsx';
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public routes */}
-        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signin" element={<LoginSignUp />} />
         <Route path="/domain-roadmaps" element={<DomainRoadmaps />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginSignUp />} />
         <Route path="/" element={<Homepage />} />
 
         {/* Protected routes */}
