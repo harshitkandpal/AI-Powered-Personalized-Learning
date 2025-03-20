@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import SignIn from './pages/SignIn.jsx';
-import Login from './pages/Login.jsx';
 import Homepage from './pages/Homepage.jsx';
 import DomainRoadmaps from './pages/DomainRoadmaps.jsx';
 import MyLearning from './pages/MyLearning.jsx';

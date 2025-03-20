@@ -177,14 +177,14 @@ const handleGoogleSignIn = async () => {
             <h1 className="text-5xl m-4">Hello, Friend!</h1>
             <h3>Enter your personal details and start journey with us</h3>
             <button onClick={() => setIsLogin(true)} className="bg-transparent text-2xl border-white p-2 rounded">
-              Sign Up
+              Log In
             </button>
           </div>
           <div className="toggle-panel toggle-right">
           <h1 className="text-5xl m-4">Welcome Back!</h1>
             <h3>To keep connected with us please login with your personal info</h3>
             <button onClick={() => setIsLogin(false)} className="bg-transparent text-2xl border-white p-2 rounded">
-              Sign In
+            Sign In
             </button>
           </div>
         </div>
