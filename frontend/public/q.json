@@ -1,115 +1,126 @@
 {
-    "questions": [
-      {
-        "id": 1,
-        "question": "What is the primary function of TensorFlow in deep learning?",
-        "options": [
-          "Data visualization",
-          "Building and training machine learning models",
-          "Statistical analysis",
-          "File compression"
-        ],
-        "correctAnswer": "Building and training machine learning models"
-      },
-      {
-        "id": 2,
-        "question": "Which TensorFlow function is typically used to construct a neural network?",
-        "options": [
-          "tf.constant",
-          "tf.Variable",
-          "tf.keras.Sequential",
-          "tf.placeholder"
-        ],
-        "correctAnswer": "tf.keras.Sequential"
-      },
-      {
-        "id": 3,
-        "question": "In deep learning with TensorFlow, what is the purpose of an activation function?",
-        "options": [
-          "To initialize weights",
-          "To update the bias",
-          "To introduce non-linearity in the model",
-          "To reduce overfitting"
-        ],
-        "correctAnswer": "To introduce non-linearity in the model"
-      },
-      {
-        "id": 4,
-        "question": "Which of the following is a popular optimizer in TensorFlow?",
-        "options": [
-          "Adam",
-          "Mean Squared Error",
-          "Gradient Descent",
-          "RMSProp"
-        ],
-        "correctAnswer": "Adam"
-      },
-      {
-        "id": 5,
-        "question": "What does the function 'model.compile()' in TensorFlow do?",
-        "options": [
-          "Loads the training data",
-          "Configures the model for training",
-          "Builds the model architecture",
-          "Evaluates the model performance"
-        ],
-        "correctAnswer": "Configures the model for training"
-      },
-      {
-        "id": 6,
-        "question": "Which type of neural network is commonly used for image classification tasks in TensorFlow?",
-        "options": [
-          "Recurrent Neural Network (RNN)",
-          "Convolutional Neural Network (CNN)",
-          "Generative Adversarial Network (GAN)",
-          "Long Short-Term Memory (LSTM)"
-        ],
-        "correctAnswer": "Convolutional Neural Network (CNN)"
-      },
-      {
-        "id": 7,
-        "question": "What is the typical loss function used in TensorFlow for binary classification problems?",
-        "options": [
-          "Categorical Crossentropy",
-          "Mean Squared Error",
-          "Binary Crossentropy",
-          "Sparse Categorical Crossentropy"
-        ],
-        "correctAnswer": "Binary Crossentropy"
-      },
-      {
-        "id": 8,
-        "question": "What does the function 'model.fit()' in TensorFlow do?",
-        "options": [
-          "Tests the model on new data",
-          "Saves the trained model",
-          "Trains the model using the training data",
-          "Evaluates the model performance"
-        ],
-        "correctAnswer": "Trains the model using the training data"
-      },
-      {
-        "id": 9,
-        "question": "Which library is integrated into TensorFlow to create neural network layers more easily?",
-        "options": [
-          "NumPy",
-          "Keras",
-          "Pandas",
-          "Matplotlib"
-        ],
-        "correctAnswer": "Keras"
-      },
-      {
-        "id": 10,
-        "question": "What is the purpose of dropout in a neural network model in TensorFlow?",
-        "options": [
-          "To reduce the size of the network",
-          "To avoid overfitting by randomly dropping neurons",
-          "To initialize the weights",
-          "To improve accuracy"
-        ],
-        "correctAnswer": "To avoid overfitting by randomly dropping neurons"
-      }
-    ]
-  }
-  
+  "tests": [
+    {
+      "testId": 1,
+      "testName": "TensorFlow Basics",
+      "questions": [
+        {
+          "id": 1,
+          "question": "What is the primary function of TensorFlow in deep learning?",
+          "options": [
+            "Data visualization",
+            "Building and training machine learning models",
+            "Statistical analysis",
+            "File compression"
+          ],
+          "correctAnswer": "Building and training machine learning models"
+        },
+        {
+          "id": 2,
+          "question": "Which TensorFlow function is typically used to construct a neural network?",
+          "options": [
+            "tf.constant",
+            "tf.Variable",
+            "tf.keras.Sequential",
+            "tf.placeholder"
+          ],
+          "correctAnswer": "tf.keras.Sequential"
+        },
+        {
+          "id": 3,
+          "question": "In deep learning with TensorFlow, what is the purpose of an activation function?",
+          "options": [
+            "To initialize weights",
+            "To update the bias",
+            "To introduce non-linearity in the model",
+            "To reduce overfitting"
+          ],
+          "correctAnswer": "To introduce non-linearity in the model"
+        },
+        {
+          "id": 4,
+          "question": "Which of the following is a popular optimizer in TensorFlow?",
+          "options": [
+            "Adam",
+            "Mean Squared Error",
+            "Gradient Descent",
+            "RMSProp"
+          ],
+          "correctAnswer": "Adam"
+        },
+        {
+          "id": 5,
+          "question": "What does the function 'model.compile()' in TensorFlow do?",
+          "options": [
+            "Loads the training data",
+            "Configures the model for training",
+            "Builds the model architecture",
+            "Evaluates the model performance"
+          ],
+          "correctAnswer": "Configures the model for training"
+        }
+      ]
+    },
+    {
+      "testId": 2,
+      "testName": "Advanced TensorFlow Concepts",
+      "questions": [
+        {
+          "id": 6,
+          "question": "Which type of neural network is commonly used for image classification tasks in TensorFlow?",
+          "options": [
+            "Recurrent Neural Network (RNN)",
+            "Convolutional Neural Network (CNN)",
+            "Generative Adversarial Network (GAN)",
+            "Long Short-Term Memory (LSTM)"
+          ],
+          "correctAnswer": "Convolutional Neural Network (CNN)"
+        },
+        {
+          "id": 7,
+          "question": "What is the typical loss function used in TensorFlow for binary classification problems?",
+          "options": [
+            "Categorical Crossentropy",
+            "Mean Squared Error",
+            "Binary Crossentropy",
+            "Sparse Categorical Crossentropy"
+          ],
+          "correctAnswer": "Binary Crossentropy"
+        },
+        {
+          "id": 8,
+          "question": "What does the function 'model.fit()' in TensorFlow do?",
+          "options": [
+            "Tests the model on new data",
+            "Saves the trained model",
+            "Trains the model using the training data",
+            "Evaluates the model performance"
+          ],
+          "correctAnswer": "Trains the model using the training data"
+        },
+        {
+          "id": 9,
+          "question": "Which library is integrated into TensorFlow to create neural network layers more easily?",
+          "options": [
+            "NumPy",
+            "Keras",
+            "Pandas",
+            "Matplotlib"
+          ],
+          "correctAnswer": "Keras"
+        },
+        {
+          "id": 10,
+          "question": "What is the purpose of dropout in a neural network model in TensorFlow?",
+          "options": [
+            "To reduce the size of the network",
+            "To avoid overfitting by randomly dropping neurons",
+            "To initialize the weights",
+            "To improve accuracy"
+          ],
+          "correctAnswer": "To avoid overfitting by randomly dropping neurons"
+        }
+      ]
+    }
+  ]
+}

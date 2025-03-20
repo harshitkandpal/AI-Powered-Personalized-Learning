@@ -34,20 +34,13 @@ const CourseDetail = () => {
         if (studentSnapshot.exists()) {
           const studentData = studentSnapshot.data();
     
-          // Check if the student is enrolled in the course
-          const enrolled = studentData.enrolled_courses.some(
-            (enrolledCourse) => enrolledCourse.course_id === course_id
-          );
+          // Check if the student is enrolled in the course by checking enrolled_courses array
+          const enrolled = studentData.enrolled_courses.includes(course_id);
           setIsEnrolled(enrolled);
     
           if (enrolled) {
-            // Access the progress array
-            const progressArray = studentData.progress || [];
-    
-            // Find the specific course progress in the array using the course_id
-            const courseProgress = progressArray.find(
-              (progressEntry) => progressEntry.course_id === course_id
-            );
+            // Access the student's progress in this course
+            const courseProgress = studentData.progress[course_id];
     
             if (courseProgress) {
               // Format progress for display
@@ -68,14 +61,10 @@ const CourseDetail = () => {
         }
       }
     };
-    
-    
-    
   
     fetchCourse();
     checkEnrollment();
   }, [course_id, currentUser]);
-  
   
   const handleEnrollNow = async () => {
     if (!currentUser) {
@@ -87,10 +76,15 @@ const CourseDetail = () => {
   
     // Update the student's enrolled_courses and set the progress for this course
     await updateDoc(studentRef, {
-      enrolled_courses: arrayUnion({ course_id }),
+      enrolled_courses: arrayUnion(course_id),
       [`progress.${course_id}`]: {
         completion_percentage: 0,
         last_accessed: new Date(),
+        // Add other progress data fields as needed
+        accuracy: 0,
+        improvement: 0,
+        time_taken: 0,
+        difficulty: 'beginner', // Default values, can be updated later
       },
     });
   
@@ -100,7 +94,6 @@ const CourseDetail = () => {
       last_accessed: new Date().toLocaleString(),
     });
   };
-  
 
   if (!course) {
     return <p>Loading...</p>; // Display a loading state while fetching data

@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle"; // ✅ Import Theme Toggle
+import { useTheme } from "../components/ThemeContext"; // ✅ Import Theme Context
 
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { theme } = useTheme(); // ✅ Get the theme state
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,8 +36,21 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+    <div
+      className={`flex flex-col justify-center items-center h-screen transition-colors duration-300 ${
+        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+      }`}
+    >
+      {/* Header with Theme Toggle */}
+      <header className="absolute top-4 right-4">
+        <ThemeToggle /> {/* ✅ Theme Toggle button */}
+      </header>
+
+      <div
+        className={`p-8 rounded-xl shadow-md w-full max-w-md transition-colors duration-300 ${
+          theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"
+        }`}
+      >
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
         <form onSubmit={handleLogin}>
           <input
@@ -42,14 +58,14 @@ const Login = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border p-2 mb-4 w-full rounded-lg"
+            className="border p-2 mb-4 w-full rounded-lg bg-transparent"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 mb-4 w-full rounded-lg"
+            className="border p-2 mb-4 w-full rounded-lg bg-transparent"
           />
           <button
             type="submit"
