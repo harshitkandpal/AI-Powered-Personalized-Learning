@@ -564,7 +564,7 @@
 import React, { useState } from 'react';
 import { Loader, BookOpen, ExternalLink } from 'lucide-react';
 import Navbar from "../components/Navbar";
-import FileUpload from "../components/FileUpload"; 
+import FileUpload from "../components/fileupload"; 
 
 const StudyPlanner = () => {
   const [syllabusPdf, setSyllabusPdf] = useState(null);
