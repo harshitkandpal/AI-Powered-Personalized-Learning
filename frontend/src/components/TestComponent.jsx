@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase.js"; // Ensure you have Firebase initialized
 import { doc, updateDoc, arrayUnion, Timestamp } from "firebase/firestore"; // Import Firestore methods
 
-const TestComponent = ({ onTestCompleted, studentEmail, courseId }) => {
+const TestComponent = ({ onTestCompleted, studentEmail, courseId, videoId }) => {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
   const [testSubmitted, setTestSubmitted] = useState(false);
@@ -14,11 +14,18 @@ const TestComponent = ({ onTestCompleted, studentEmail, courseId }) => {
   });
 
   useEffect(() => {
-    // Load questions from the public folder
-    fetch("/q.json") // Fetch from public folder
+    // Load questions from q.json for the current test
+    fetch("/q.json")
       .then((response) => response.json())
-      .then((data) => setQuestions(data.questions));
-  }, []);
+      .then((data) => {
+        const testForVideo = data.tests.find((test) => test.testId === videoId); // Load test for the current video
+        console.log(testForVideo)
+        console.log(videoId)
+        if (testForVideo) {
+          setQuestions(testForVideo.questions);
+        }
+      });
+  }, [videoId]); // Only reload when videoId changes (new test for new video)
 
   const handleAnswerChange = (questionId, answer) => {
     setUserAnswers({ ...userAnswers, [questionId]: answer });
@@ -53,7 +60,7 @@ const TestComponent = ({ onTestCompleted, studentEmail, courseId }) => {
   const handleSubmitTest = async () => {
     const { accuracy, improvement, time_taken, difficulty } = calculateScore();
     setTestScore({ accuracy, improvement, time_taken, difficulty });
-  
+
     try {
       const response = await fetch("http://127.0.0.1:5000/track-learning-speed", {
         method: "POST",
@@ -67,34 +74,41 @@ const TestComponent = ({ onTestCompleted, studentEmail, courseId }) => {
           difficulty,
         }),
       });
-  
-      const lss = await response.json(); // Get learning speed score (LSS) and strengths from backend
-      console.log(lss)
-      const strengths = ['Tensorflow', 'machine learning'];
-      onTestCompleted(lss, strengths); // Pass both LSS and strengths to parent
+
+      const lss = await response.json(); // Get learning speed score (LSS)
+      const strengths = ["Tensorflow", "Machine Learning"]; // Sample strengths
+
+      onTestCompleted(lss, strengths); // Pass LSS and strengths to parent
       setTestSubmitted(true);
-  
-      // Update Firebase with LSS, strengths, and progress
-      const studentRef = doc(db, "students", studentEmail); // Use email as the document ID
-  
+
+      // Update Firebase progress field
+      const studentRef = doc(db, "students", studentEmail); // Use email as document ID
+
       await updateDoc(studentRef, {
-        progress: arrayUnion({
+        [`progress.${courseId}`]: {
           course_id: courseId,
-          LSS: lss,
-          strengths: strengths, // Assuming 'strengths' is an array from API response
-          completion_percentage: 100, // Assuming 100% after test completion
-          last_accessed: Timestamp.now(), // Record current time
-        }),
+          LSS: arrayUnion({
+            score: lss, // Learning Speed Score for this test
+            date: Timestamp.now(),
+            accuracy, // Store accuracy
+            improvement, // Store improvement
+            time_taken, // Time taken for the test
+            difficulty, // Test difficulty
+          }),
+          strengths: arrayUnion(...strengths), // Append strengths to array
+          completion_percentage: (videoId / 2) * 100, // Assume completion after each test
+          last_accessed: Timestamp.now(), // Record last access time
+        },
       });
-  
+
       console.log("Student progress updated successfully!");
     } catch (error) {
       console.error("Error updating student progress:", error);
     }
   };
-  
+
   if (testSubmitted) {
-    return <p>Test completed! Your progress has been updated.</p>;
+    return <p>Test completed! Your progress has been updated. Next video unlocked.</p>;
   }
 
   return (

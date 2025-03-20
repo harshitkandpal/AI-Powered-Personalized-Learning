@@ -10,6 +10,7 @@ import CourseContent from './pages/CourseContent.jsx';
 // import Courses from './pages/Courses.jsx';
 // import CourseDetails from './pages/CourseDetails.jsx'; // Page for individual course
 import ProtectedRoute from './ProtectedRoute.jsx'; // Component for private route handling
+import SummativeTest from './pages/SummativeTest.jsx';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/course/:course_id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/course/:course_id/learn" element={<ProtectedRoute><CourseContent /></ProtectedRoute>} />
+        <Route path="/courses/:course_id/summative-test" element={<ProtectedRoute><SummativeTest /></ProtectedRoute>} />
       </Routes>
     </Router>
   );
