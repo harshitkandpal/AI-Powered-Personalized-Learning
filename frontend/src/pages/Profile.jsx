@@ -6,12 +6,15 @@ import CourseCard from "../components/CourseCard";
 import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../firebase"; // Assuming firebase is set up
+import { useTheme } from "../components/ThemeContext";
 
 const Profile = () => {  // Correct prop destructuring
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme(); // Use the theme context
+  const isDark = theme === "dark";
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
@@ -122,13 +125,13 @@ const Profile = () => {  // Correct prop destructuring
           </div>
 
           {/* Activity Days */}
-          <div className={`rounded-lg shadow p-6 mt-6 ${isDark ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`rounded-lg shadow p-6 mt-6 ${isDark ? "bg-gray-700" : "bg-white"}`}>
             <h3 className="text-lg font-medium mb-2">Activity</h3>
             <div className="grid grid-cols-7 gap-1">
               {activeDays.map((day, index) => (
                 <div
                   key={index}
-                  className={`h-6 rounded ${day.active ? "bg-green-500" : isDark ? "bg-gray-700" : "bg-gray-200"}`}
+                  className={`h-6 rounded ${day.active ? "bg-green-500" : isDark ? "bg-gray-800" : "bg-gray-200"}`}
                   title={day.date}
                 ></div>
               ))}
@@ -142,13 +145,13 @@ const Profile = () => {  // Correct prop destructuring
         {/* Right Side - Badges & Courses */}
         <div className="w-full md:w-2/3">
           {/* Badges Section */}
-          <div className={`rounded-lg shadow p-6 mb-6 ${isDark ? "bg-gray-800" : "bg-white"}`}>
+          <div className={`rounded-lg shadow p-6 mb-6 ${isDark ? "bg-gray-700" : "bg-white"}`}>
             <h3 className="text-lg font-medium mb-4">Badges Earned</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {userBadges.map((badge) => (
                 <div 
                   key={badge.id} 
-                  className={`flex items-center p-3 rounded-lg ${isDark ? "bg-gray-700" : "bg-gray-100"}`}
+                  className={`flex items-center p-3 rounded-lg ${isDark ? "bg-gray-800" : "bg-gray-100"}`}
                 >
                   <div className="text-2xl mr-3">{badge.icon}</div>
                   <div>
@@ -160,7 +163,7 @@ const Profile = () => {  // Correct prop destructuring
           </div>
 
           {/* Courses Section */}
-          <div className="bg-zinc-600 rounded-lg shadow p-4">
+          <div className={` ${isDark ? "bg-gray-700" : "bg-gray-100"} rounded-lg shadow p-4`}>
             <h3 className="text-lg font-medium mb-4">Your Courses</h3>
             <div className="my-learning-page p-6">
         {enrolledCourses.length > 0 ? (
