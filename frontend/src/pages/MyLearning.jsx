@@ -100,8 +100,6 @@ const MyLearning = () => {
 
             // Get array of course IDs, filtering out undefined or invalid IDs
             const enrolledCourseIds = studentData.enrolled_courses
-              .filter(course => course && course.course_id)
-              .map(course => course.course_id);
             console.log(enrolledCourseIds)
 
             // Now, fetch details of each course using the enrolled course IDs
