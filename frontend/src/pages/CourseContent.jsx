@@ -1,39 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../firebase"; // Assuming firebase is set up
-import { doc, getDoc, updateDoc } from "firebase/firestore"; // Firebase methods
-import { useAuth } from "../AuthContext"; // Assuming you're using AuthContext to get current user
+import { db } from "../firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useAuth } from "../AuthContext";
+import TestComponent from "../components/TestComponent"; // Import TestComponent
 
 const CourseContent = () => {
-  const { course_id } = useParams();
-  const { currentUser } = useAuth(); // Get the current user
+  const { course_id } = useParams(); // Extract course_id from URL
+  const { currentUser } = useAuth(); // Get current user's email
   const [course, setCourse] = useState(null);
-  const [progress, setProgress] = useState(0); // Track course progress
-  const [testPassed, setTestPassed] = useState(false); // Track test completion
+  const [progress, setProgress] = useState(0);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   useEffect(() => {
-    // Fetch course content
     const fetchCourse = async () => {
       const courseRef = doc(db, "courses", course_id);
       const courseSnapshot = await getDoc(courseRef);
 
       if (courseSnapshot.exists()) {
         setCourse(courseSnapshot.data());
-      } else {
-        console.log("Course not found!");
       }
     };
 
-    // Fetch student's progress
     const fetchProgress = async () => {
       if (currentUser) {
-        const studentRef = doc(db, "students", currentUser.email);
+        const studentRef = doc(db, "students", currentUser.email); // Use currentUser's email as document ID
         const studentSnapshot = await getDoc(studentRef);
 
         if (studentSnapshot.exists()) {
           const studentData = studentSnapshot.data();
-          const courseProgress = studentData.progress?.[course_id];
-          setProgress(courseProgress?.completion_percentage || 0);
+          console.log(studentData);
+
+          // Find the progress for the current course in the array
+          const courseProgress = studentData.progress.find(
+            (item) => item.course_id === course_id
+          );
+
+          // Set the progress value if found, otherwise set to 0
+          setProgress(courseProgress ? courseProgress.completion_percentage : 0);
         }
       }
     };
@@ -42,29 +46,63 @@ const CourseContent = () => {
     fetchProgress();
   }, [course_id, currentUser]);
 
-  // Update progress in Firestore after test completion
-  const updateProgress = async (newProgress) => {
+  // Update progress after passing test
+  const handleTestCompleted = async (lss, strengths) => {
+    const newProgress = Math.min(100, progress + 10); // Increment by 10% for each test passed
+
+    // Ensure that lss and strengths are valid before updating Firebase
+    if (lss === undefined || strengths === undefined) {
+      console.error("LSS or strengths are undefined. Skipping LSS/strengths update.");
+      return;
+    }
+
+    setProgress(newProgress);
+
     if (currentUser) {
-      try {
-        const studentRef = doc(db, "students", currentUser.email);
-        await updateDoc(studentRef, {
-          [`progress.${course_id}`]: {
-            completion_percentage: newProgress,
-            last_accessed: new Date(),
-          },
+      const studentRef = doc(db, "students", currentUser.email);
+      const studentSnapshot = await getDoc(studentRef);
+      const studentData = studentSnapshot.data();
+
+      // Find the specific progress entry for the course
+      const progressIndex = studentData.progress.findIndex(
+        (item) => item.course_id === course_id
+      );
+
+      if (progressIndex !== -1) {
+        // Update the progress in the array for the current course
+        studentData.progress[progressIndex].completion_percentage = newProgress;
+        studentData.progress[progressIndex].last_accessed = new Date();
+        studentData.progress[progressIndex].LSS = { LSS: lss }; // Update LSS
+        studentData.strengths = strengths; // Update strengths
+      } else {
+        // If progress entry doesn't exist, create a new one
+        studentData.progress.push({
+          course_id,
+          completion_percentage: newProgress,
+          last_accessed: new Date(),
+          LSS: { LSS: lss },
         });
+        studentData.strengths = strengths; // Set strengths
+      }
+
+      try {
+        await updateDoc(studentRef, {
+          progress: studentData.progress,
+          strengths: studentData.strengths,
+        });
+        console.log("Student progress, LSS, and strengths updated successfully!");
       } catch (error) {
-        console.error("Error updating progress: ", error);
+        console.error("Error updating student progress:", error);
       }
     }
-  };
 
-  // Simulate test completion
-  const handleTestCompletion = () => {
-    setTestPassed(true);
-    const newProgress = progress + 10; // Increase progress by 10% after passing a test
-    setProgress(newProgress);
-    updateProgress(newProgress);
+    // Move to next video after test completion
+    if (currentVideoIndex < course.content.videos.length - 1) {
+      setCurrentVideoIndex(currentVideoIndex + 1);
+    }
+
+    // Show result to the user
+    alert(`Test completed. Progress: ${newProgress}%`);
   };
 
   if (!course) {
@@ -73,7 +111,6 @@ const CourseContent = () => {
 
   return (
     <div className="course-content-page p-6 px-36">
-      {/* Course Header */}
       <div className="course-header mb-6">
         <h1 className="text-4xl font-bold mb-2">{course.title}</h1>
         <p>Progress: {progress}%</p>
@@ -84,23 +121,25 @@ const CourseContent = () => {
         <h2 className="text-2xl font-bold mb-4">Course Videos</h2>
         {course.content?.videos?.length > 0 ? (
           <div className="video-list">
-            {course.content.videos.map((video, index) => (
-              <div key={index} className="video-item mb-8">
-                <h3 className="text-xl font-semibold mb-2">
-                  {index + 1}. {video.title}
-                </h3>
-                <iframe
-                  width="100%"
-                  height="650"
-                  src={video.includes("youtube.com/watch?v=") ? video.replace("watch?v=", "embed/") : video}
-                  title={video.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="rounded-lg"
-                ></iframe>
-              </div>
-            ))}
+            <div className="video-item mb-8">
+              <h3 className="text-xl font-semibold mb-2">
+                {currentVideoIndex + 1}. {course.content.videos[currentVideoIndex].title}
+              </h3>
+              <iframe
+                width="100%"
+                height="650"
+                src={
+                  course.content.videos[currentVideoIndex].includes("youtube.com/watch?v=")
+                    ? course.content.videos[currentVideoIndex].replace("watch?v=", "embed/")
+                    : course.content.videos[currentVideoIndex]
+                }
+                title={course.content.videos[currentVideoIndex].title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-lg"
+              ></iframe>
+            </div>
           </div>
         ) : (
           <p>No videos available.</p>
@@ -108,19 +147,11 @@ const CourseContent = () => {
       </div>
 
       {/* Test Section */}
-      <div className="test-section mt-6">
-        <h2 className="text-2xl font-bold mb-4">Course Test</h2>
-        {!testPassed ? (
-          <button
-            className="bg-blue-500 text-white p-2 rounded"
-            onClick={handleTestCompletion}
-          >
-            Take Test to Move Forward
-          </button>
-        ) : (
-          <p>Congratulations! You passed the test and your progress has been updated.</p>
-        )}
-      </div>
+      <TestComponent
+        onTestCompleted={handleTestCompleted} // Pass the handleTestCompleted function
+        studentEmail={currentUser?.email}     // Pass the current user's email as studentEmail
+        courseId={course_id}                 // Pass courseId
+      />
     </div>
   );
 };
