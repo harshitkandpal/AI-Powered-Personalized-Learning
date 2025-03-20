@@ -5,7 +5,8 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import CourseSlider from "../components/CourseSlider";
 import Navbar from "../components/Navbar";
-import Chatbot from "../components/ChatBot"; // Import Chatbot
+import Chatbot from "../components/ChatBot";
+import StudyPlanner from "./StudyPlanner"; // Import Chatbot
 
 const Homepage = () => {
   const [categories, setCategories] = useState([]);

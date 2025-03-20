@@ -5,6 +5,7 @@ import MyLearning from './pages/MyLearning.jsx';
 import Profile from './pages/Profile.jsx';
 import CourseDetail from './pages/CourseDetail.jsx';
 import CourseContent from './pages/CourseContent.jsx';
+import StudyPlanner from './pages/StudyPlanner.jsx';
 // import Courses from './pages/Courses.jsx';
 // import CourseDetails from './pages/CourseDetails.jsx'; // Page for individual course
 import ProtectedRoute from './ProtectedRoute.jsx'; // Component for private route handling
@@ -27,6 +28,7 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/course/:course_id/learn" element={<ProtectedRoute><CourseContent /></ProtectedRoute>} />
         <Route path="/courses/:course_id/summative-test" element={<ProtectedRoute><SummativeTest /></ProtectedRoute>} />
+        
       </Routes>
     </Router>
   );
