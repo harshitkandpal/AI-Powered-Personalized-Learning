@@ -3,10 +3,59 @@ import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import defaultProfile from "../assets/react.svg";
 import CourseCard from "../components/CourseCard";
+import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { db } from "../firebase"; // Assuming firebase is set up
 
-const Profile = ({ courses }) => {  // Correct prop destructuring
+const Profile = () => {  // Correct prop destructuring
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEnrolledCourses = async () => {
+      if (currentUser) {
+        try {
+          // Fetch the student document
+          const studentRef = doc(db, "students", currentUser.email);
+          const studentSnapshot = await getDoc(studentRef);
+          
+          if (studentSnapshot.exists()) {
+            const studentData = studentSnapshot.data();
+            console.log(studentData.enrolled_courses);
+
+            // Get array of course IDs, filtering out undefined or invalid IDs
+            const enrolledCourseIds = studentData.enrolled_courses
+              .filter(course => course && course.course_id)
+              .map(course => course.course_id);
+            console.log(enrolledCourseIds)
+
+            // Now, fetch details of each course using the enrolled course IDs
+            const coursePromises = enrolledCourseIds.map(async (courseId) => {
+              const courseRef = doc(db, "courses", courseId);
+              const courseSnapshot = await getDoc(courseRef);
+              return courseSnapshot.exists() ? courseSnapshot.data() : null;
+            });
+
+            const courses = await Promise.all(coursePromises);
+            // Filter out any null values (in case a course no longer exists)
+            setEnrolledCourses(courses.filter(course => course !== null));
+          }
+        } catch (error) {
+          console.error("Error fetching enrolled courses: ", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchEnrolledCourses();
+  }, [currentUser]);
+
+  if (loading) {
+    return <p>Loading your courses...</p>;
+  }
 
   const activeDays = [
     { date: "2025-03-14", active: true },
@@ -106,21 +155,24 @@ const Profile = ({ courses }) => {  // Correct prop destructuring
           </div>
 
           {/* Courses Section */}
-          <div className="bg-zinc-600 rounded-lg shadow p-6">
+          <div className="bg-zinc-600 rounded-lg shadow p-4">
             <h3 className="text-lg font-medium mb-4">Your Courses</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {courses?.length > 0 ? (
-                courses.map((course) => (
-                  <CourseCard key={course.course_id} course={course} />
-                ))
-              ) : (
-                <p className="text-gray-400">No courses found.</p>
-              )}
-            </div>
+            <div className="my-learning-page p-6">
+        {enrolledCourses.length > 0 ? (
+          <div className="course-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {enrolledCourses.map((course, index) => (
+              <CourseCard key={index} course={course} />
+            ))}
+          </div>
+        ) : (
+          <p>You are not enrolled in any courses yet.</p>
+        )}
+      </div>
+    </div>
           </div>
         </div>
       </div>
-    </div>
+    
   );
 };
 
