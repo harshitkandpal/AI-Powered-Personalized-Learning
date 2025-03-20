@@ -83,13 +83,13 @@ const Profile = () => {  // Correct prop destructuring
   };
 
   return (
-    <div className="profile-page p-6">
+    <div className={`profile-page p-6 ${isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"}`}>
       {/* Header with Go Back and Logout buttons */}
       <div className="flex justify-between mb-6">
-        <button className="bg-blue-500 text-white py-2 px-4 rounded-lg" onClick={handleGoBack}>
+        <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors" onClick={handleGoBack}>
           ← Go Back
         </button>
-        <button className="bg-red-500 text-white py-2 px-4 rounded-lg" onClick={handleLogout}>
+        <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-colors" onClick={handleLogout}>
           Logout
         </button>
       </div>
@@ -97,9 +97,9 @@ const Profile = () => {  // Correct prop destructuring
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left Side - Profile Picture */}
         <div className="w-full md:w-1/3">
-          <div className="bg-zinc-600 rounded-lg shadow p-5">
+          <div className={`rounded-lg shadow p-5 ${isDark ? "bg-gray-800" : "bg-white"}`}>
             <div className="flex flex-col items-center">
-              <div className="w-62 h-62 rounded-full bg-gray-200 mb-4 overflow-hidden">
+              <div className={`w-62 h-62 rounded-full mb-4 overflow-hidden ${isDark ? "bg-gray-700" : "bg-gray-200"}`}>
                 {currentUser?.photoURL ? (
                   <img
                     src={currentUser.photoURL || defaultProfile}
@@ -107,7 +107,7 @@ const Profile = () => {  // Correct prop destructuring
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center w-full h-full text-gray-500 text-4xl">
+                  <div className="flex items-center justify-center w-full h-full text-4xl">
                     👤
                   </div>
                 )}
@@ -115,23 +115,25 @@ const Profile = () => {  // Correct prop destructuring
               <h2 className="text-xl font-semibold">
                 {currentUser ? currentUser.displayName || currentUser.email : "Guest"}
               </h2>
-              <p>{currentUser?.email || "Please log in"}</p>
+              <p className={isDark ? "text-gray-300" : "text-gray-600"}>
+                {currentUser?.email || "Please log in"}
+              </p>
             </div>
           </div>
 
           {/* Activity Days */}
-          <div className="bg-zinc-600 rounded-lg shadow p-6 mt-6">
+          <div className={`rounded-lg shadow p-6 mt-6 ${isDark ? "bg-gray-800" : "bg-white"}`}>
             <h3 className="text-lg font-medium mb-2">Activity</h3>
             <div className="grid grid-cols-7 gap-1">
               {activeDays.map((day, index) => (
                 <div
                   key={index}
-                  className={`h-6 rounded ${day.active ? "bg-green-500" : "bg-gray-200"}`}
+                  className={`h-6 rounded ${day.active ? "bg-green-500" : isDark ? "bg-gray-700" : "bg-gray-200"}`}
                   title={day.date}
                 ></div>
               ))}
             </div>
-            <p className="text-sm mt-2 text-gray-500">
+            <p className={`text-sm mt-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
               Active for {activeDays.filter((day) => day.active).length} days this week
             </p>
           </div>
@@ -140,11 +142,14 @@ const Profile = () => {  // Correct prop destructuring
         {/* Right Side - Badges & Courses */}
         <div className="w-full md:w-2/3">
           {/* Badges Section */}
-          <div className="bg-zinc-600 rounded-lg shadow p-6 mb-6">
+          <div className={`rounded-lg shadow p-6 mb-6 ${isDark ? "bg-gray-800" : "bg-white"}`}>
             <h3 className="text-lg font-medium mb-4">Badges Earned</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {userBadges.map((badge) => (
-                <div key={badge.id} className="flex items-center bg-zinc-900 p-3 rounded-lg">
+                <div 
+                  key={badge.id} 
+                  className={`flex items-center p-3 rounded-lg ${isDark ? "bg-gray-700" : "bg-gray-100"}`}
+                >
                   <div className="text-2xl mr-3">{badge.icon}</div>
                   <div>
                     <p className="font-medium">{badge.name}</p>
