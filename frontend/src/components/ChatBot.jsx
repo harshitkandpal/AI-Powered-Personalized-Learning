@@ -100,7 +100,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "../components/ThemeContext";
 import { FaRobot, FaTimes, FaPaperPlane } from "react-icons/fa";
-import { useAuth } from "../contexts/AuthContext"; // Assuming you have an auth context
+import { useAuth } from "../AuthContext"; // Assuming you have an auth context
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
