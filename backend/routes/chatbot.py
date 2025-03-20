@@ -221,7 +221,7 @@ def chatbot():
             data = request.get_json()
             user_input = data.get('message', '')
             user_id = data.get('user_id')  # Get student ID if available
-            
+            print(user_id)
             # Default values
             learning_speed_score = 50
             progress = 50
