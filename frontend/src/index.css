@@ -26,7 +26,7 @@ body {
 
 /* Dark mode */
 .dark body {
-  background-color: #1a1a1a; /* Dark background */
+  background-color: #111928ff; /* Dark background */
   color: #e0e0e0; /* Light text */
 }
 
@@ -86,7 +86,7 @@ body {
 
 /* Dark mode navbar */
 .dark .navbar {
-  background-color: #333333; /* Darker background */
+  background-color: #1E2838ff; /* Darker background */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Stronger shadow */
 }
 
@@ -98,7 +98,7 @@ body {
 
 /* Dark mode search bar */
 .dark .search-bar {
-  background-color: #444444; /* Dark mode search bar */
+  background-color: #374152ff; /* Dark mode search bar */
 }
 
 /* Links (tabs) */
@@ -142,7 +142,7 @@ button[aria-label='Toggle theme']:hover {
 
 /* Dark mode button */
 .dark button[aria-label='Toggle theme'] {
-  background-color: #444444; /* Dark mode button */
+  background-color: #374152ff; /* Dark mode button */
 }
 
 .dark button[aria-label='Toggle theme']:hover {
@@ -160,7 +160,7 @@ button[aria-label='Toggle theme'] svg {
 
 /* Dark Mode Styles */
 .dark .course-card-link {
-    background-color: #2d2d2d; /* Dark background */
+    background-color: #1E2838ff; /* Dark background */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Darker shadow */
     color: #e0e0e0; /* Light text */
   }
