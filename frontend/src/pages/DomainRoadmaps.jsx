@@ -407,7 +407,6 @@
 
 // export default StudyPlanner;
 
-
 import React, { useState } from 'react';
 import { Loader, BookOpen, ExternalLink, Download } from 'lucide-react';
 import Navbar from "../components/Navbar";
@@ -418,8 +417,7 @@ import { jsPDF } from "jspdf";
 
 const StudyPlanner = () => {
   const [syllabusPdf, setSyllabusPdf] = useState(null);
-  const [generatedPlan, setGeneratedPlan] = useState(null);
-  const [resources, setResources] = useState({});
+  const [weeklyTimetable, setWeeklyTimetable] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   
@@ -427,14 +425,32 @@ const StudyPlanner = () => {
     setSyllabusPdf(file);
   };
 
+  // Weekly Plan Table Display
   const parseTable = (text) => {
-    const rows = text.trim().split('\n').map(row => row.split('|').map(cell => cell.trim()));
-  
+    // Remove any asterisks that might be in the text
+    const cleanedText = text.replace(/\*/g, '');
+    
+    // Parse the rows and cells
+    const rows = cleanedText.trim().split('\n').map(row => 
+      row.split('|')
+        .map(cell => cell.trim())
+        .filter(cell => cell.length > 0) // Remove empty cells
+    );
+
     return (
       <div className="overflow-x-auto w-full">
         <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-blue-600 text-white">
+              {rows[0].map((header, index) => (
+                <th key={index} className="px-4 py-3 text-left border-r border-blue-500">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
           <tbody>
-            {rows.map((cells, i) => (
+            {rows.slice(1).map((cells, i) => (
               <tr key={i} className={`border-b border-gray-300 dark:border-gray-700 ${
                 i % 2 === 0 
                   ? 'bg-blue-50 dark:bg-gray-800' 
@@ -453,18 +469,42 @@ const StudyPlanner = () => {
     );
   };
 
-  // Function to extract rows from table-formatted text
-  const extractTableRows = (text) => {
-    if (!text.includes('|')) return null;
-    return text.trim().split('\n').map(row => row.split('|').map(cell => cell.trim()));
-  };
-  
-  const formatGeneratedPlan = (text) => {
-    return text.includes("|") ? (
-      parseTable(text)
-    ) : (
-      <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 font-sans">{text}</pre>
-    );
+  // Extract only the weekly timetable from the generated study plan
+  const extractWeeklyTimetable = (fullPlan) => {
+    // Check if the plan contains a table
+    if (!fullPlan || !fullPlan.includes('|')) {
+      return null;
+    }
+
+    // Find the timetable section - look for lines containing table formatting
+    try {
+      // Extract all lines with pipes (table rows)
+      const tableLines = fullPlan.split('\n').filter(line => line.includes('|'));
+      
+      if (tableLines.length === 0) return null;
+      
+      // Format the table properly with a header row
+      let formattedTable = "| Week | Focus | Daily Hours | Resources | Key Activities | Notes\n";
+      
+      // Add data rows, cleaning any problematic formatting
+      tableLines.forEach(line => {
+        // Clean up line - remove asterisks and fix dashes
+        const cleanedLine = line
+          .replace(/\*/g, '')
+          .replace(/^-+/, '| ') // Replace leading dashes with a proper cell start
+          .trim();
+          
+        // Only add if it's a data row (contains actual content)
+        if (cleanedLine && !cleanedLine.includes('----')) {
+          formattedTable += cleanedLine + '\n';
+        }
+      });
+      
+      return formattedTable;
+    } catch (error) {
+      console.error('Error extracting timetable:', error);
+      return null;
+    }
   };
   
   const handleGeneratePlan = async (e) => {
@@ -489,8 +529,13 @@ const StudyPlanner = () => {
       const data = await response.json();
 
       if (data.status === 'success') {
-        setGeneratedPlan(data.study_plan);
-        setResources(data.resources || {});
+        // Extract only the weekly timetable from the full plan
+        const timetable = extractWeeklyTimetable(data.study_plan);
+        setWeeklyTimetable(timetable);
+        
+        if (!timetable) {
+          alert('Could not extract weekly timetable from the study plan. Please try again.');
+        }
       } else {
         alert('Failed to generate study plan.');
       }
@@ -503,21 +548,20 @@ const StudyPlanner = () => {
   };
 
   const handleDownloadPdf = () => {
-    if (!generatedPlan) return;
-    
+    if (!weeklyTimetable) return;
     setIsDownloading(true);
     
     try {
       // Create a new PDF document
       const doc = new jsPDF();
       
-      // Set font styles
+      // Set font styles for title
       doc.setFont("helvetica", "bold");
       doc.setFontSize(20);
       doc.setTextColor(25, 25, 112); // Dark blue color
       
       // Add title
-      doc.text("Your Personalized Study Plan", 105, 20, { align: "center" });
+      doc.text("Weekly Study Schedule", 105, 20, { align: "center" });
       
       // Add separator line
       doc.setDrawColor(25, 25, 112);
@@ -527,245 +571,108 @@ const StudyPlanner = () => {
       // Reset y position for content
       let yPos = 35;
       
-      // Process the study plan content
-      if (generatedPlan.includes("**Personalized Study Plan:**")) {
-        // Split the content into sections
-        const sections = generatedPlan.split(/(\*\*[\w\s]+:\*\*)/g);
-        
-        for (let i = 0; i < sections.length; i++) {
-          const section = sections[i].trim();
-          
-          if (section.match(/^\*\*[\w\s]+:\*\*/)) {
-            // This is a header
-            // Check if we need a new page
-            if (yPos > 270) {
-              doc.addPage();
-              yPos = 20;
-            }
-            
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(14);
-            doc.setTextColor(25, 25, 112);
-            
-            // Remove asterisks from header
-            const headerText = section.replace(/\*\*/g, '');
-            doc.text(headerText, 20, yPos);
-            
-            yPos += 8;
-          } else if (section.trim() !== '') {
-            // This is content
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(11);
-            doc.setTextColor(60, 60, 60);
-            
-            const splitText = doc.splitTextToSize(section, 170);
-            
-            // Check if we need a new page
-            if (yPos + (splitText.length * 7) > 280) {
-              doc.addPage();
-              yPos = 20;
-            }
-            
-            doc.text(splitText, 20, yPos);
-            yPos += (splitText.length * 7) + 5;
-          }
-        }
-      } else {
-        // Render as normal text if no specific formatting detected
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
-        doc.setTextColor(60, 60, 60);
-        
-        const splitText = doc.splitTextToSize(generatedPlan, 170);
-        doc.text(splitText, 20, yPos);
-        yPos += (splitText.length * 7) + 15;
-      }
+      // Extract the table rows - first clean up any asterisks
+      const cleanedTable = weeklyTimetable.replace(/\*/g, '');
+      const tableLines = cleanedTable.split('\n');
       
-      // Handle the timetable specifically
-      if (generatedPlan.includes("**Week**") && generatedPlan.includes("|")) {
-        // Extract the timetable rows
-        const timetableSection = generatedPlan.substring(
-          generatedPlan.indexOf("**Week**"),
-          generatedPlan.indexOf("**Important Notes")
-        );
-        
-        const tableLines = timetableSection.split('\n').filter(line => line.includes('|'));
-        const tableRows = tableLines.map(line => line.split('|').map(cell => cell.trim()).filter(cell => cell));
-        
-        // Add a new page for the timetable
-        doc.addPage();
-        yPos = 20;
-        
-        // Add timetable title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(25, 25, 112);
-        doc.text("Weekly Study Schedule", 105, yPos, { align: "center" });
-        
-        yPos += 15;
-        
-        // Add timetable
-        if (tableRows.length > 0) {
-          const columnCount = tableRows[0].length;
-          const columnWidths = [25, 20, 60, 60, 20, 40]; // Adjust column widths based on content
-          
-          // Calculate total table width
-          const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-          const tableStartX = (210 - totalWidth) / 2; // Center table on page
-          
-          // Draw table header background
-          doc.setFillColor(70, 130, 180);
-          doc.rect(tableStartX, yPos - 5, totalWidth, 10, 'F');
-          
-          // Draw header text
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(10);
-          doc.setTextColor(255, 255, 255);
-          
-          let currentX = tableStartX;
-          for (let j = 0; j < columnCount; j++) {
-            doc.text(tableRows[0][j], currentX + 2, yPos);
-            currentX += columnWidths[j];
-          }
-          
-          yPos += 10;
-          
-          // Process data rows
-          for (let i = 1; i < tableRows.length; i++) {
-            // Check if we need a new page
-            if (yPos > 270) {
-              doc.addPage();
-              yPos = 20;
-              
-              // Redraw the header on the new page
-              doc.setFillColor(70, 130, 180);
-              doc.rect(tableStartX, yPos - 5, totalWidth, 10, 'F');
-              
-              doc.setFont("helvetica", "bold");
-              doc.setFontSize(10);
-              doc.setTextColor(255, 255, 255);
-              
-              currentX = tableStartX;
-              for (let j = 0; j < columnCount; j++) {
-                doc.text(tableRows[0][j], currentX + 2, yPos);
-                currentX += columnWidths[j];
-              }
-              
-              yPos += 10;
-            }
-            
-            // Add alternating row background for better readability
-            if (i % 2 === 0) {
-              doc.setFillColor(240, 248, 255); // Light blue for even rows
-              doc.rect(tableStartX, yPos - 5, totalWidth, 10, 'F');
-            }
-            
-            // Draw row content
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(9);
-            doc.setTextColor(60, 60, 60);
-            
-            currentX = tableStartX;
-            for (let j = 0; j < Math.min(columnCount, tableRows[i].length); j++) {
-              // For longer text in cells (like Activity column), split text if needed
-              if (columnWidths[j] > 30) {
-                const cellText = tableRows[i][j];
-                const splitCellText = doc.splitTextToSize(cellText, columnWidths[j] - 4);
-                doc.text(splitCellText, currentX + 2, yPos);
-                
-                // Adjust row height if cell contains multiple lines
-                if (splitCellText.length > 1) {
-                  const extraLines = splitCellText.length - 1;
-                  yPos += extraLines * 5; // Add 5 points for each extra line
-                }
-              } else {
-                doc.text(tableRows[i][j], currentX + 2, yPos);
-              }
-              currentX += columnWidths[j];
-            }
-            
-            // Draw horizontal line between rows
-            doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(0.1);
-            doc.line(tableStartX, yPos + 2, tableStartX + totalWidth, yPos + 2);
-            
-            yPos += 8; // Move to next row
-          }
-        }
-      }
+      // Filter out separator lines and empty lines
+      const tableRows = tableLines.filter(line => 
+        line.trim() && !line.includes('----')
+      ).map(line => 
+        line.split('|')
+          .map(cell => cell.trim())
+          .filter(cell => cell)
+      );
       
-      // Add Resources section if there are resources
-      if (Object.keys(resources).length > 0) {
-        // Check if we need a new page
-        if (yPos > 250) {
-          doc.addPage();
-          yPos = 20;
-        }
+      if (tableRows.length > 0) {
+        // Define column widths - adjust as needed based on your table content
+        const columnWidths = [25, 40, 25, 40, 60]; 
         
+        // Calculate total table width
+        const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+        const tableStartX = (210 - totalWidth) / 2; // Center table on page
+        
+        // Draw table header background
+        doc.setFillColor(70, 130, 180);
+        doc.rect(tableStartX, yPos - 5, totalWidth, 10, 'F');
+        
+        // Draw header text (first row of table)
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(25, 25, 112);
-        doc.text("Recommended Resources", 20, yPos);
+        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        
+        let currentX = tableStartX;
+        for (let j = 0; j < tableRows[0].length; j++) {
+          const colWidth = columnWidths[j < columnWidths.length ? j : columnWidths.length - 1];
+          doc.text(tableRows[0][j], currentX + 2, yPos);
+          currentX += colWidth;
+        }
         
         yPos += 10;
         
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
-        doc.setTextColor(60, 60, 60);
-        
-        // Add each resource category
-        Object.entries(resources).forEach(([topic, links]) => {
+        // Process data rows
+        for (let i = 1; i < tableRows.length; i++) {
           // Check if we need a new page
           if (yPos > 270) {
             doc.addPage();
             yPos = 20;
+            
+            // Redraw the header on the new page
+            doc.setFillColor(70, 130, 180);
+            doc.rect(tableStartX, yPos - 5, totalWidth, 10, 'F');
+            
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.setTextColor(255, 255, 255);
+            
+            currentX = tableStartX;
+            for (let j = 0; j < tableRows[0].length; j++) {
+              const colWidth = columnWidths[j < columnWidths.length ? j : columnWidths.length - 1];
+              doc.text(tableRows[0][j], currentX + 2, yPos);
+              currentX += colWidth;
+            }
+            
+            yPos += 10;
           }
           
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(12);
-          doc.setTextColor(70, 130, 180);
-          doc.text(topic, 20, yPos);
+          // Add alternating row background for better readability
+          if (i % 2 === 0) {
+            doc.setFillColor(240, 248, 255); // Light blue for even rows
+            doc.rect(tableStartX, yPos - 5, totalWidth, 10, 'F');
+          }
           
-          yPos += 7;
-          
+          // Draw row content
           doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
+          doc.setFontSize(9);
           doc.setTextColor(60, 60, 60);
           
-          // Add each link
-          links.forEach((resource, index) => {
-            // Check if we need a new page
-            if (yPos > 270) {
-              doc.addPage();
-              yPos = 20;
-            }
-            
-            const resourceText = `${index + 1}. ${resource.title || resource}`;
-            const splitResource = doc.splitTextToSize(resourceText, 170);
-            doc.text(splitResource, 25, yPos);
-            
-            yPos += (splitResource.length * 5);
-            
-            // Add the link on a new line in blue and italic (if it exists)
-            if (resource.link) {
-              doc.setTextColor(0, 0, 255);
-              doc.setFont("helvetica", "italic");
-              const linkText = resource.link;
-              const splitLink = doc.splitTextToSize(linkText, 165);
-              doc.text(splitLink, 30, yPos);
+          currentX = tableStartX;
+          for (let j = 0; j < Math.min(tableRows[0].length, tableRows[i].length); j++) {
+            // For longer text in cells, split text if needed
+            const colWidth = columnWidths[j < columnWidths.length ? j : columnWidths.length - 1];
+            if (colWidth > 30) {
+              const cellText = tableRows[i][j] || '';
+              const splitCellText = doc.splitTextToSize(cellText, colWidth - 4);
+              doc.text(splitCellText, currentX + 2, yPos);
               
-              yPos += (splitLink.length * 5) + 5;
-              
-              // Reset color
-              doc.setTextColor(60, 60, 60);
-              doc.setFont("helvetica", "normal");
+              // Adjust row height if cell contains multiple lines
+              if (splitCellText.length > 1) {
+                const extraLines = splitCellText.length - 1;
+                yPos += extraLines * 5; // Add 5 points for each extra line
+              }
             } else {
-              yPos += 5;
+              doc.text(tableRows[i][j] || '', currentX + 2, yPos);
             }
-          });
+            currentX += colWidth;
+          }
           
-          yPos += 5;
-        });
+          // Draw horizontal line between rows
+          doc.setDrawColor(200, 200, 200);
+          doc.setLineWidth(0.1);
+          doc.line(tableStartX, yPos + 2, tableStartX + totalWidth, yPos + 2);
+          
+          yPos += 8; // Move to next row
+        }
       }
       
       // Add footer with date
@@ -776,22 +683,23 @@ const StudyPlanner = () => {
       doc.text(`Generated on ${today.toLocaleDateString()}`, 105, 290, { align: "center" });
       
       // Save the PDF
-      doc.save("personalized_study_plan.pdf");
+      doc.save("weekly_study_schedule.pdf");
       
     } catch (error) {
       console.error('Error creating PDF:', error);
-      alert('Failed to create the study plan PDF. Please try again.');
+      alert('Failed to create the weekly timetable PDF. Please try again.');
     } finally {
       setIsDownloading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       <Navbar />
       
       <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
         <header className="flex justify-between items-center mb-8 max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-400">AI Study Planner</h1>
+          <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-400">Weekly Study Schedule</h1>
           <ThemeToggle />
         </header>
         
@@ -802,14 +710,14 @@ const StudyPlanner = () => {
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 px-6 py-4">
                 <h2 className="text-xl font-semibold text-white flex items-center">
                   <BookOpen size={20} className="mr-2" />
-                  Generate Plan
+                  Generate Schedule
                 </h2>
               </div>
               
               <form onSubmit={handleGeneratePlan} className="p-5 space-y-5">            
                 <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-3 border-l-4 border-blue-500 dark:border-blue-400">
                   <p className="text-sm text-blue-800 dark:text-blue-300">
-                    Upload your course syllabus to generate a personalized study schedule
+                    Upload your course syllabus to generate a weekly study schedule
                   </p>
                 </div>
                 
@@ -826,7 +734,7 @@ const StudyPlanner = () => {
                       Generating...
                     </>
                   ) : (
-                    'Generate Study Plan'
+                    'Generate Schedule'
                   )}
                 </button>
               </form>
@@ -835,10 +743,10 @@ const StudyPlanner = () => {
           
           {/* Right Panel - Main Content */}
           <div className="md:w-3/4 lg:w-4/5">
-            {generatedPlan ? (
+            {weeklyTimetable ? (
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-blue-100 dark:border-gray-700 h-full">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 px-6 py-4 flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-white">Your Generated Study Plan</h2>
+                  <h2 className="text-xl font-semibold text-white">Your Weekly Study Schedule</h2>
                   
                   {/* PDF Download Button */}
                   <button
@@ -861,39 +769,10 @@ const StudyPlanner = () => {
                 </div>
                 <div className="p-5">
                   <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg overflow-auto border border-gray-200 dark:border-gray-700 shadow-inner" style={{ maxHeight: 'calc(100vh - 280px)', minHeight: '400px' }}>
-                    {formatGeneratedPlan(generatedPlan)}
+                    {weeklyTimetable ? parseTable(weeklyTimetable) : (
+                      <p className="text-center text-gray-500 dark:text-gray-400">No timetable generated yet</p>
+                    )}
                   </div>
-                  
-                  {Object.keys(resources).length > 0 && (
-                    <div className="mt-8">
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                        <BookOpen className="mr-2 text-blue-600 dark:text-blue-400" size={18} />
-                        Recommended Resources
-                      </h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {Object.entries(resources).map(([topic, links]) => (
-                          <div key={topic} className="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg border-l-4 border-blue-400 dark:border-blue-500">
-                            <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">{topic}</h4>
-                            <ul className="space-y-2">
-                              {links.map((resource, index) => (
-                                <li key={index} className="flex items-start group">
-                                  <ExternalLink size={16} className="text-blue-500 dark:text-blue-400 mt-1 mr-2 flex-shrink-0 group-hover:text-blue-700 dark:group-hover:text-blue-300" />
-                                  <a 
-                                    href={resource.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 dark:text-blue-400 group-hover:text-blue-800 dark:group-hover:text-blue-300 group-hover:underline"
-                                  >
-                                    {resource.title}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             ) : (
@@ -901,9 +780,9 @@ const StudyPlanner = () => {
                 <div className="bg-blue-50 dark:bg-gray-700 p-6 rounded-full mb-6">
                   <BookOpen size={64} className="text-blue-500 dark:text-blue-400" />
                 </div>
-                <h3 className="text-xl font-medium text-gray-800 dark:text-gray-200 mb-3">No Study Plan Generated Yet</h3>
+                <h3 className="text-xl font-medium text-gray-800 dark:text-gray-200 mb-3">No Weekly Schedule Generated Yet</h3>
                 <p className="text-gray-600 dark:text-gray-300 max-w-md leading-relaxed">
-                  Upload your syllabus PDF and click the "Generate Study Plan" button to create your personalized study plan.
+                  Upload your syllabus PDF and click the "Generate Schedule" button to create your personalized weekly study timetable.
                 </p>
                 <div className="mt-6 w-full max-w-sm">
                   <div className="bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
@@ -911,7 +790,7 @@ const StudyPlanner = () => {
                   </div>
                   <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
                     <span>Upload File</span>
-                    <span>Review Plan</span>
+                    <span>View Schedule</span>
                   </div>
                 </div>
               </div>
