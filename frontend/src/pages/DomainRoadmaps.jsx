@@ -989,7 +989,7 @@ const StudyPlanner = () => {
       <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
         <header className="flex justify-between items-center mb-8 max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-400">Weekly Study Schedule</h1>
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
         </header>
         
         <div className="flex flex-col md:flex-row gap-6 max-w-7xl mx-auto">
