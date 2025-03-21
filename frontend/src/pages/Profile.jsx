@@ -528,58 +528,32 @@ const Profile = () => {
               <span className="mr-2">📚</span>Your Courses
             </h3>
             {enrolledCourses.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {enrolledCourses.map((course, index) => (
-                  <div 
-                    key={index} 
-                    className={`relative rounded-lg overflow-hidden shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl ${isDark ? "bg-gray-700" : "bg-white"}`}
-                  >
-                    <div className="h-36 bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                      <span className="text-4xl">{course.icon || "📚"}</span>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-lg mb-1">{course.title || `Course ${index + 1}`}</h4>
-                      <p className="text-sm mb-3 opacity-75">
-                        {course.lessons || 0} lessons • {course.duration || "2h 30m"} total
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1 mr-4">
-                          <div className="flex justify-between mb-1 text-xs">
-                            <span>Progress</span>
-                            <span>{course.progress}%</span>
-                          </div>
-                          <div className={`${isDark ? "bg-gray-600" : "bg-gray-200"} rounded-full h-2 w-full`}>
-                            <div 
-                              className={`${
-                                course.progress >= 90 ? "bg-green-500" : "bg-blue-500" 
-                              } h-full rounded-full transition-all duration-1000 ease-out`}
-                              style={{ width: `${course.progress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                        <button 
-                          className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded transition-colors"
-                        >
-                          Continue
-                        </button>
-                      </div>
-                    </div>
-                    {course.progress >= 90 && (
-                      <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-                        Almost Done!
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={`p-8 text-center rounded-lg ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
-                <p className="text-lg">You are not enrolled in any courses yet.</p>
-                <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
-                  Browse Courses
-                </button>
-              </div>
-            )}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {enrolledCourses.map((course, index) => (
+      <div
+        key={index}
+        className={`relative rounded-lg overflow-hidden  transform transition-all duration-300 hover:scale-105 ${isDark ? "bg-gray-800" : "bg-white"}`}
+      >
+        <CourseCard key={course.course_id} course={course} />
+
+        {/* Display 'Almost Done' tag if progress is 90% or more */}
+        {course.progress >= 90 && (
+          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
+            Almost Done!
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+) : (
+  <div className={`p-8 text-center rounded-lg ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
+    <p className="text-lg">You are not enrolled in any courses yet.</p>
+    <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+      Browse Courses
+    </button>
+  </div>
+)}
+
           </div>
         </div>
       </div>
