@@ -105,7 +105,7 @@ def create_study_plan():
         
         # Default values
         name = "Student"
-        lss = 50.0
+        lss = 9.0
         strengths = ["General Studies"]
         user_id = None
         
